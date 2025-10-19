@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Published Posts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: black;
+            background-color: white;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Header section for username (left) and logout (right) */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 20px;
+        }
+
+        .logout-form button {
+            padding: 6px 12px;
+            border: 1px solid black;
+            border-radius: 5px;
+            background: none;
+            cursor: pointer;
+        }
+
+        .user-info {
+            font-size: 16px;
+        }
+
+        .user-info span {
+            font-weight: bold;
+        }
+
+        .top-buttons {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .top-buttons a {
+            display: inline-block;
+            margin: 5px;
+            padding: 6px 12px;
+            border: 1px solid black;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+            background: none;
+        }
+
+        .search-bar,
+        .filter-section,
+        .multi-filter,
+        .sort-buttons {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .search-bar input,
+        .filter-section input,
+        .filter-section button,
+        .multi-filter button {
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .filter-section form {
+            display: inline-block;
+            border: 1px solid black;
+            border-radius: 8px;
+            padding: 15px 25px;
+        }
+
+        .multi-filter form {
+            display: inline-block;
+            border: 1px solid black;
+            border-radius: 8px;
+            padding: 15px;
+            max-width: 500px;
+            text-align: left;
+        }
+
+        details summary {
+            cursor: pointer;
+            padding: 5px;
+            border: 1px solid black;
+            border-radius: 4px;
+        }
+
+        details div {
+            margin-top: 10px;
+            margin-left: 10px;
+        }
+
+        .sort-buttons form {
+            display: inline-block;
+        }
+
+        .sort-buttons button {
+            padding: 6px 12px;
+            border: 1px solid black;
+            background: none;
+            border-radius: 5px;
+        }
+
+        .post-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px;
+        }
+
+        .post-card {
+            border: 1px solid black;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .post-card h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .post-card p {
+            margin: 0 0 8px 0;
+        }
+
+        .pagination {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            padding: 5px 10px;
+            border: 1px solid black;
+            border-radius: 4px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .pagination a.disabled {
+            color: gray;
+            border-color: gray;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Published Posts</h2>
+
+<!-- Header section -->
+<div class="header-bar">
+    <div class="user-info">
+        Logged in as: <span th:text="${username}">Guest</span>
+    </div>
+
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <button type="submit">Logout</button>
+    </form>
+</div>
+
+<div class="top-buttons">
+    <a th:href="@{/newPost}">+ Create New Post</a>
+</div>
+
+<!-- Search Bar -->
+<div class="search-bar">
+    <form method="get" th:action="@{/searchPosts}">
+        <input type="text" name="search" th:value="${search}" placeholder="Search posts..." />
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<!-- Filter by Date -->
+<div class="filter-section">
+    <form th:action="@{/filterByPublishedAt}" method="get">
+        <input type="date" name="date" th:value="${date}" />
+        <input type="hidden" name="page" value="0" />
+        <button type="submit">Filter by Date</button>
+    </form>
+</div>
+
+<div class="multi-filter" style="text-align: center; margin: 20px 0;">
+    <form th:action="@{/getFilteredPosts}" method="get" style="display: inline-block; border: 1px solid black; border-radius: 8px; padding: 20px; max-width: 500px; text-align: left;">
+        <h3 style="text-align: center;">Filter by Authors and Tags</h3>
+
+        <!-- Authors Dropdown -->
+        <div style="margin-bottom: 15px;">
+            <label for="authors-select"><strong>Select Authors:</strong></label><br>
+            <select id="authors-select" multiple size="5" style="width: 100%; padding: 5px;">
+                <option th:each="author : ${allAuthors}"
+                        th:value="${author}"
+                        th:text="${author}"
+                        th:selected="${authors != null and authors.contains(author)}">
+                </option>
+            </select>
+            <!-- Hidden input to store comma-separated values -->
+            <input type="hidden" id="authors" name="authors" th:value="${authors != null ? #strings.setJoin(authors, ',') : ''}" />
+        </div>
+
+        <!-- Tags Dropdown -->
+        <div style="margin-bottom: 15px;">
+            <label for="tags-select"><strong>Select Tags:</strong></label><br>
+            <select id="tags-select" multiple size="5" style="width: 100%; padding: 5px;">
+                <option th:each="tag : ${allTags}"
+                        th:value="${tag}"
+                        th:text="${tag}"
+                        th:selected="${tags != null and tags.contains(tag)}">
+                </option>
+            </select>
+            <!-- Hidden input to store comma-separated values -->
+            <input type="hidden" id="tags" name="tags" th:value="${tags != null ? #strings.setJoin(tags, ',') : ''}" />
+        </div>
+
+        <div style="text-align: center; margin-top: 15px;">
+            <button type="submit" style="padding: 6px 12px; border-radius: 4px; border: 1px solid black;">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+
+<!-- Sort Buttons -->
+<div class="sort-buttons">
+    <form th:action="@{/posts/sort/asc}" method="get">
+        <input type="hidden" name="page" value="0" />
+        <button type="submit">Older Posts</button>
+    </form>
+    <form th:action="@{/posts/sort/desc}" method="get">
+        <input type="hidden" name="page" value="0" />
+        <button type="submit">Most Recent</button>
+    </form>
+</div>
+
+<!-- Posts Grid -->
+<div class="post-grid">
+    <div class="post-card" th:each="post : ${posts}">
+        <h3 th:text="${post.title}">Post Title</h3>
+        <p><strong>Author:</strong> <span th:text="${post.author}">Author</span></p>
+        <p><strong>Date:</strong>
+            <span th:text="${post.publishedAt != null ? #temporals.format(post.publishedAt, 'dd MMM yyyy') : ''}">Date</span>
+        </p>
+        <p><strong>Tags:</strong>
+            <span th:each="tag, iterStat : ${post.tags}"
+                  th:text="${tag.name + (iterStat.last ? '' : ', ')}"></span>
+        </p>
+        <p th:text="${post.content != null && post.content.length() > 150 ? post.content.substring(0,150) + '...' : post.content}"></p>
+        <a th:href="@{/post/{id}(id=${post.id})}">View</a>
+    </div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+    <a th:if="${currentPage > 0}"
+       th:href="@{${currentAction}(authors=${authors}, tags=${tags}, search=${search}, page=${currentPage - 1}, date=${date}, size=${10})}">
+        Previous
+    </a>
+
+    <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
+
+    <a th:if="${currentPage + 1 < totalPages}"
+       th:href="@{${currentAction}(authors=${authors}, tags=${tags}, search=${search}, page=${currentPage + 1}, date=${date}, size=${10})}">
+        Next
+    </a>
+</div>
+
+</body>
+</html>

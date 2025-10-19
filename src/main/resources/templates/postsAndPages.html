@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Posts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            color: #000;
+            margin: 20px;
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        input[type="text"], input[type="date"], select {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #000;
+            border-radius: 4px;
+            width: 200px;
+        }
+        button {
+            padding: 8px 14px;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #333;
+        }
+        .card-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .card {
+            background-color: #fff;
+            border: 1px solid #000;
+            border-radius: 8px;
+            width: 300px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        .card p {
+            margin: 0 0 15px 0;
+            color: #000;
+            font-size: 0.95em;
+        }
+        .card .author {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .card .published {
+            font-size: 0.85em;
+            color: #000;
+            margin-bottom: 10px;
+        }
+        .card a {
+            align-self: flex-start;
+            text-decoration: none;
+            color: #fff;
+            background-color: #000;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .card a:hover {
+            background-color: #333;
+        }
+        .pagination {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .pagination a {
+            margin: 0 10px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+        }
+        .pagination a.disabled {
+            color: #aaa;
+            pointer-events: none;
+        }
+        a[href="/postsPages"] {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #000;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Search Posts</h2>
+
+<!-- Search Form -->
+<form method="get" th:action="@{/searchPosts}">
+    <input type="text" name="search" th:value="${search}" placeholder="Search posts..." />
+    <button type="submit">Search</button>
+</form>
+
+<!-- Card Layout for Posts -->
+<div class="card-container">
+    <div class="card" th:each="post : ${posts}">
+        <div class="author" th:text="${post.author}"></div>
+        <div class="published"
+             th:text="${post.publishedAt != null ? #temporals.format(post.publishedAt, 'dd MMM yyyy') : ''}"></div>
+        <h3 th:text="${post.title}"></h3>
+        <p th:text="${#strings.abbreviate(post.excerpt != null ? post.excerpt : post.content, 100)}"></p>
+        <a th:href="@{/post/{id}(id=${post.id})}">View</a>
+    </div>
+</div>
+
+<!-- Pagination Controls -->
+<div class="pagination">
+    <a th:if="${currentPage > 0}"
+       th:href="@{/searchPosts(page=${currentPage - 1}, search=${search}, author=${author}, tag=${tag}, publishedDate=${publishedDate})}">
+        Previous
+    </a>
+
+    <span> Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span> </span>
+
+    <a th:if="${currentPage + 1 < totalPages}"
+       th:href="@{/searchPosts(page=${currentPage + 1}, search=${search}, author=${author}, tag=${tag}, publishedDate=${publishedDate})}">
+        Next
+    </a>
+</div>
+
+<a href="/postsPages">Back to All Posts</a>
+
+</body>
+</html>
+

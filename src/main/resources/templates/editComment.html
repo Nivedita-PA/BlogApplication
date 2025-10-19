@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Application</title>
+    <style>
+        /* Simple black and white styling */
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .form-container {
+            border: 1px solid #000;
+            padding: 30px;
+            width: 350px;
+            background-color: #fff;
+            text-align: left;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            border: 1px solid #000;
+            padding: 8px;
+            box-sizing: border-box;
+            background-color: #fff;
+            color: #000;
+        }
+
+        button {
+            width: 100%;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+<h2>Edit Comment</h2>
+<form th:action="@{/updateComment/{id}(id=${comment.id})}" th:object="${comment}" method="post">
+
+    <input type="hidden" th:field="${id}"/>
+
+    <label>Name:</label><br>
+    <input type="text" th:field="*{name}" required><br><br>
+
+    <label>Email:</label><br>
+    <input type="email" th:field="*{email}" required><br><br>
+
+    <label>Comment:</label><br>
+    <textarea th:field="*{comment}" rows="4" cols="50" required></textarea><br><br>
+
+    <button type="submit">Update Comment</button>
+</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>All Published Posts</title>
+
+    <style>
+        /* Black and white full-width styling */
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px 0;
+        }
+
+        .container {
+            width: 90%; /* most of desktop width */
+            max-width: 1200px;
+            margin: 0 auto; /* center horizontally */
+            padding: 20px 30px;
+            box-sizing: border-box;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: normal;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table, th, td {
+            border: 1px solid #000;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        td a {
+            color: #000;
+            text-decoration: none;
+        }
+
+        td a:hover {
+            text-decoration: underline;
+        }
+
+        p {
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div style="text-align: right; margin-bottom: 20px;">
+        <a th:href="@{/newPost}" style="margin-right: 15px;">New Post</a>
+        <a th:href="@{/postsPages}">All Posts</a>
+    </div>
+
+<h2>All Published Posts</h2>
+
+<div th:if="${#lists.isEmpty(posts)}">
+    <p>No posts available.</p>
+</div>
+
+<div th:if="${!#lists.isEmpty(posts)}">
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Content</th>
+            <th>Published At</th>
+            <th>View Post</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Loop through posts -->
+        <tr th:each="post : ${posts}">
+            <td th:text="${post.title}">Post Title</td>
+            <td th:text="${post.author}">Author Name</td>
+            <td th:text="${post.content}">Post Content</td>
+            <td th:text="${#temporals.format(post.publishedAt, 'dd MMM yyyy')}">Date</td>
+            <td> <a th:href="@{/post/{id}(id=${post.id})}">View</a></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+</body>
+</html>
